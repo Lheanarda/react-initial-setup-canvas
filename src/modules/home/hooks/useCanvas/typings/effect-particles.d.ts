@@ -10,3 +10,10 @@ export interface EffectParticlesProps {
   canvasEl: CanvasEl;
   size: SizeEffect;
 }
+
+export interface Cursor {
+  x: number;
+  y: number;
+  radius: number;
+  pressed: boolean;
+}

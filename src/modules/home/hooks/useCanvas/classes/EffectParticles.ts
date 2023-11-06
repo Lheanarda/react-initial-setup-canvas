@@ -1,6 +1,10 @@
 import { MAX_DISTANCE, TOTAL_PARTICLES } from "../constants";
 import { CanvasEl } from "../typings/canvas";
-import { EffectParticlesProps, SizeEffect } from "../typings/effect-particles";
+import {
+  Cursor,
+  EffectParticlesProps,
+  SizeEffect,
+} from "../typings/effect-particles";
 import {
   handleCreateGradient,
   handleGetRandomCirclePosition,
@@ -21,6 +25,13 @@ class EffectParticles {
     width: 0,
   };
 
+  cursor: Cursor = {
+    pressed: false,
+    radius: 200,
+    x: 0,
+    y: 0,
+  };
+
   constructor({ canvasEl, size }: EffectParticlesProps) {
     this.canvasEl = canvasEl;
     this.size = size;
@@ -31,6 +42,22 @@ class EffectParticles {
     this.canvasEl.context.fillStyle = gradient;
 
     this.createParticles();
+
+    window.addEventListener("mousemove", (e) => {
+      if (!this.cursor.pressed) return;
+      this.cursor.x = e.x;
+      this.cursor.y = e.y;
+    });
+
+    window.addEventListener("mousedown", (e) => {
+      this.cursor.pressed = true;
+      this.cursor.x = e.x;
+      this.cursor.y = e.y;
+    });
+
+    window.addEventListener("mouseup", () => {
+      this.cursor.pressed = false;
+    });
   }
 
   createParticles() {

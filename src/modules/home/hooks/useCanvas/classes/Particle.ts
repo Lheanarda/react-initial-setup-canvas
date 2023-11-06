@@ -1,6 +1,10 @@
 import { CanvasEl, Position } from "../typings/canvas";
 import { ParticleProps, Velocity } from "../typings/particle";
-import { handleGetRandomVelocity } from "../utils";
+import {
+  handleGetRandomVelocity,
+  hanldeGetDistanceBetween2Circle,
+} from "../utils";
+import EffectParticles from "./EffectParticles";
 
 class Particle {
   position: Position = {
@@ -17,10 +21,19 @@ class Particle {
     y: handleGetRandomVelocity(),
   };
 
-  constructor({ canvasEl, position, radius }: ParticleProps) {
+  friction = 0.95;
+
+  pushX = 0;
+
+  pushY = 0;
+
+  effectParticles: EffectParticles = {} as EffectParticles;
+
+  constructor({ canvasEl, position, radius, effectParticle }: ParticleProps) {
     this.canvasEl = canvasEl;
     this.position = position;
     this.radius = radius;
+    this.effectParticles = effectParticle;
   }
 
   draw() {
@@ -37,15 +50,47 @@ class Particle {
 
     const { canvas } = this.canvasEl;
 
-    if (this.position.x >= canvas.width || this.position.x <= 0)
+    if (this.effectParticles.cursor.pressed) {
+      const dx = this.position.x - this.effectParticles.cursor.x;
+      const dy = this.position.y - this.effectParticles.cursor.y;
+      const distance = hanldeGetDistanceBetween2Circle(
+        this.position,
+        this.effectParticles.cursor
+      );
+
+      const force = this.effectParticles.cursor.radius / distance;
+      if (distance < this.effectParticles.cursor.radius) {
+        const angle = Math.atan2(dy, dx);
+        this.pushX += Math.cos(angle) * force;
+        this.pushY += Math.sin(angle) * force;
+      }
+    }
+
+    this.position.x += (this.pushX *= this.friction) + this.velocity.x;
+
+    this.position.y += (this.pushY *= this.friction) + this.velocity.y;
+
+    if (this.position.x < this.radius) {
+      this.position.x = this.radius;
       this.velocity.x *= -1;
+    } else if (
+      this.position.x >
+      this.effectParticles.size.width - this.radius
+    ) {
+      this.position.x = this.effectParticles.size.width - this.radius;
+      this.velocity.x *= -1;
+    }
 
-    if (this.position.y >= canvas.height || this.position.y <= 0)
+    if (this.position.y < this.radius) {
+      this.position.y = this.radius;
       this.velocity.y *= -1;
-
-    this.position.x += this.velocity.x;
-
-    this.position.y += this.velocity.y;
+    } else if (
+      this.position.y >
+      this.effectParticles.size.height - this.radius
+    ) {
+      this.position.y = this.effectParticles.size.height - this.radius;
+      this.velocity.y *= -1;
+    }
   }
 }
 
