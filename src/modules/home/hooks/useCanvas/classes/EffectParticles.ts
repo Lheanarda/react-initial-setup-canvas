@@ -49,13 +49,29 @@ class EffectParticles {
       this.cursor.y = e.y;
     });
 
+    window.addEventListener("touchmove", (e) => {
+      if (!this.cursor.pressed) return;
+      this.cursor.x = e.touches[0].clientX;
+      this.cursor.y = e.touches[0].clientY;
+    });
+
     window.addEventListener("mousedown", (e) => {
       this.cursor.pressed = true;
       this.cursor.x = e.x;
       this.cursor.y = e.y;
     });
 
+    window.addEventListener("touchstart", (e) => {
+      this.cursor.pressed = true;
+      this.cursor.x = e.touches[0].clientX;
+      this.cursor.y = e.touches[0].clientY;
+    });
+
     window.addEventListener("mouseup", () => {
+      this.cursor.pressed = false;
+    });
+
+    window.addEventListener("touchend", () => {
       this.cursor.pressed = false;
     });
   }
